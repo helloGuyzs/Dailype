@@ -1,0 +1,41 @@
+service: aws-python-http-api-project
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  region: ap-south-1
+  runtime: python3.9
+
+functions:
+  create_user:
+    handler: handler.create_user
+    events:
+      - httpApi:
+          path: /create_user
+          method: post
+    layers:
+      - arn:aws:lambda:ap-south-1:042305690722:layer:psycopg2:2
+  get_users:
+    handler: handler.get_users
+    events:
+      - httpApi:
+          path: /get_users
+          method: post
+    layers:
+      - arn:aws:lambda:ap-south-1:042305690722:layer:psycopg2:2
+  delete_user:
+    handler: handler.delete_user
+    events:
+      - httpApi:
+          path: /delete_user
+          method: post
+    layers:
+      - arn:aws:lambda:ap-south-1:042305690722:layer:psycopg2:2
+  update_user:
+    handler: handler.update_user
+    events:
+      - httpApi:
+          path: /update_user
+          method: post
+    layers:
+      - arn:aws:lambda:ap-south-1:042305690722:layer:psycopg2:2
