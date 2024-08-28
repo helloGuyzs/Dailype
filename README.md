@@ -1,101 +1,123 @@
-<!--
-title: 'AWS Simple HTTP Endpoint example in Python'
-description: 'This template demonstrates how to make a simple HTTP API with Python running on AWS Lambda and API Gateway using the Serverless Framework.'
-layout: Doc
-framework: v3
-platform: AWS
-language: python
-authorLink: 'https://github.com/serverless'
-authorName: 'Serverless, inc.'
-authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
--->
+# User Management API
 
-# Serverless Framework Python HTTP API on AWS
+This project consists of a set of serverless Python functions for managing user data in a PostgreSQL database. The functions include creating, geting, updating, and deleting user records. This guide covers setup, deployment, and usage.
 
-This template demonstrates how to make a simple HTTP API with Python running on AWS Lambda and API Gateway using the Serverless Framework.
+## Setup Instructions
 
-This template does not include any kind of persistence (database). For more advanced examples, check out the [serverless/examples repository](https://github.com/serverless/examples/)  which includes DynamoDB, Mongo, Fauna and other examples.
+1. **Create a Free Tier Account**
+   - Create an account on your preferred cloud provider. AWS is preferred for this project.
 
-## Usage
+2. **Enable Services**
+   - **AWS Lambda**: For serverless functions.
+   - **Amazon RDS**: For PostgreSQL database .
 
-### Deployment
+3. **Database Setup**
+   - Create a PostgreSQL database instance.
+   - Create the following tables:
 
-```
-$ serverless deploy
-```
+     **`users` Table**:
+     ```sql
+     CREATE TABLE users (
+         user_id UUID PRIMARY KEY,
+         full_name VARCHAR(255) NOT NULL,
+         mob_num VARCHAR(15) NOT NULL,
+         pan_num VARCHAR(10) NOT NULL,
+         manager_id UUID,
+         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+         is_active BOOLEAN DEFAULT TRUE
+     );
+     ```
 
-After deploying, you should see output similar to:
+     **`managers` Table**:
+     ```sql
+     CREATE TABLE managers (
+         id UUID PRIMARY KEY,
+         name VARCHAR(255) NOT NULL
+     );
+     ```
 
-```bash
-Deploying aws-python-http-api-project to stage dev (us-east-1)
+   - **Test Data for `managers`**:
+     ```sql
+     INSERT INTO managers (id, name) VALUES 
+     ('550e8400-e29b-41d4-a716-446655440000', 'Nikhil Singh'),
+     ('86efba38-2853-4ebf-ab09-b3fa476ea5ec', 'Narendra Singh');
+     ```
 
-✔ Service deployed to stack aws-python-http-api-project-dev (140s)
+## Function Endpoints
 
-endpoint: GET - https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/
-functions:
-  hello: aws-python-http-api-project-dev-hello (2.3 kB)
-```
+### 1. **/create_user**
 
-_Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [http event docs](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/).
-
-### Invocation
-
-After successful deployment, you can call the created application via HTTP:
-
-```bash
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/
-```
-
-Which should result in response similar to the following (removed `input` content for brevity):
-
-```json
-{
-  "message": "Go Serverless v3.0! Your function executed successfully!",
-  "input": {
-    ...
+- **Method**: POST
+- **API Link**: https://zvdg0yl602.execute-api.ap-south-1.amazonaws.com/create_user
+- **Request Body**: 
+  ```json
+  {
+      "full_name": "John Doe",
+      "mob_num": "+919876543210",
+      "pan_num": "ABCDE1234F",
+      "manager_id": "86efba38-2853-4ebf-ab09-b3fa476ea5ec"
   }
-}
-```
 
-### Local development
+  ```
 
-You can invoke your function locally by using the following command:
+  **Response:**
+  - Success: Returns a success message upon successful user creation.
+  - Failure: Returns an appropriate error message if any validation fails.
 
-```bash
-serverless invoke local --function hello
-```
+### 2. /get_users
 
-Which should result in response similar to the following:
+- **Method:** POST
+- **API Link:** https://zvdg0yl602.execute-api.ap-south-1.amazonaws.com/get_users
+- **Request Body:**
+  ```json
+  {
+    "user_id": "uuid",
+    "mob_num": "9876543210",
+    "manager_id": "uuid"
+  }
+  ```
+- **Response:**
+  - Success: Returns a JSON object with an array of user objects.
+  - Failure: Returns an empty JSON array if no users found.
 
-```
-{
-  "statusCode": 200,
-  "body": "{\n  \"message\": \"Go Serverless v3.0! Your function executed successfully!\",\n  \"input\": \"\"\n}"
-}
-```
+### 3. /delete_user
 
-Alternatively, it is also possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. In order to do that, execute the following command:
+- **Method:** POST
+- **API Link:** https://zvdg0yl602.execute-api.ap-south-1.amazonaws.com/delete_user.
+- **Request Body:**
+  ```json
+  {
+    "user_id": "uuid",
+    "mob_num": "9876543210"
+  }
+  ```
+- **Response:**
+  - Success: Returns a success message upon successful user deletion.
+  - Failure: Returns an appropriate error message if user not found.
 
-```bash
-serverless plugin install -n serverless-offline
-```
+### 4. /update_user
 
-It will add the `serverless-offline` plugin to `devDependencies` in `package.json` file as well as will add it to `plugins` in `serverless.yml`.
+- **Method:** POST
+- **API Link:** https://zvdg0yl602.execute-api.ap-south-1.amazonaws.com/update_user
+- **Request Body:**
+  ```json
+  {
+    "user_ids": ["uuid1", "uuid2"],
+    "update_data": {
+      "full_name": "Updated Name",
+      "mob_num": "9876543210",
+      "pan_num": "AABCP1234C",
+      "manager_id": "uuid"
+    }
+  }
+  ```
+- **Response:**
+  - Success: Returns a success message upon successful user update.
+  - Failure: Returns an appropriate error message if any validation fails.
 
-After installation, you can start local emulation with:
+## BEST Practices followed-
 
-```
-serverless offline
-```
+- Proper error handling and logging are implemented.
+- Timely commits are made with meaning full comments to display the project progress.
 
-To learn more about the capabilities of `serverless-offline`, please refer to its [GitHub repository](https://github.com/dherault/serverless-offline).
-
-### Bundling dependencies
-
-In case you would like to include 3rd party dependencies, you will need to use a plugin called `serverless-python-requirements`. You can set it up by running the following command:
-
-```bash
-serverless plugin install -n serverless-python-requirements
-```
-
-Running the above will automatically add `serverless-python-requirements` to `plugins` section in your `serverless.yml` file and add it as a `devDependency` to `package.json` file. The `package.json` file will be automatically created if it doesn't exist beforehand. Now you will be able to add your dependencies to `requirements.txt` file (`Pipfile` and `pyproject.toml` is also supported but requires additional configuration) and they will be automatically injected to Lambda package during build process. For more details about the plugin's configuration, please refer to [official documentation](https://github.com/UnitedIncome/serverless-python-requirements).
