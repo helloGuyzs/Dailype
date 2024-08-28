@@ -73,8 +73,7 @@ This project consists of a set of serverless Python functions for managing user 
   ```json
   {
     "user_id": "uuid",
-    "mob_num": "9876543210",
-    "manager_id": "uuid"
+    "mob_num": "9876543210"    
   }
   ```
 - **Response:**
@@ -104,6 +103,17 @@ This project consists of a set of serverless Python functions for managing user 
   ```json
   {
     "user_ids": ["uuid1", "uuid2"],
+    "update_data": {
+      "full_name": "Updated Name",
+      "mob_num": "9876543210",
+      "pan_num": "AABCP1234C",
+      "manager_id": "uuid"
+    }
+  }
+  ```
+  ```json
+  {
+    "user_ids": ["uuid1"],
     "update_data": {
       "full_name": "Updated Name",
       "mob_num": "9876543210",
